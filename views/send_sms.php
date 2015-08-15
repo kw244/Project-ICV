@@ -5,51 +5,78 @@
 
 		<div class="col-sm-8 col-md-6 main bg-light-grey">
 			<?php
+			
+				// include the configs / constants for the API connection
+				require_once("config/api.php");
+			
 				//include format checking function
 				require_once("classes/formatting.php");
-				
-				//we test the collection of data from our form elements
+
+				//Handle sending of SMS from web form
 				if(isset($_POST['submit_sms'])){
-					echo "Sender Name: ".$_POST['send_as_name']."<br/>";
-					echo "Campaign Name: ".$_POST['campaign_title']."<br/>";
-					echo "SMS Text: ".$_POST['sms_text']."<br/>";	
-				}
-				
-				//handles SMS functionality through phone number entry
-				if(isset($_POST['submit_sms']) && isset($_POST['send_to_numbers']))
-				{
-					echo "Send To Numbers: ".$_POST['send_to_numbers']."<br/>";
-					foreach (numbersStringToArray($_POST['send_to_numbers']) as $num){
-						echo $num."<br/>";
-					}
-				}
-				
-				//handles SMS functionality through CSV upload
-				if(isset($_POST['submit_sms']) && isset($_FILES['fileToUpload']))
-				{
-					 $fname = $_FILES['fileToUpload']['name'];
-					 $chk_ext = explode(".",$fname);
 					
-					 if(strtolower(end($chk_ext)) == "csv")
-					 {
-						 $filename = $_FILES['fileToUpload']['tmp_name'];
-						 $handle = fopen($filename, "r");
-						 while (($data = fgetcsv($handle, 1000, ",")) !== FALSE)
+					//we setup the necessary fields for the API call					
+					
+					$api_fields = array(
+								'app_id' => API_ID,
+								'access_token' => API_TOKEN,
+								'msg' => $_POST['sms_text'],
+								'tag' => $_POST['campaign_title'],
+								'notify_url' => API_CALLBACK_URL
+								);
+					
+					//we setup the recipients of the SMS according to input source
+					//"Enter Number(s)"
+					if (isset($_POST['send_to_numbers'])){
+						$api_fields['dest'] = $_POST['send_to_numbers'];
+					}
+					//"Upload CSV"
+					elseif (isset($_FILES['fileToUpload'])){
+						 $fname = $_FILES['fileToUpload']['name'];
+						 $chk_ext = explode(".",$fname);
+						
+						 if(strtolower(end($chk_ext)) == "csv")
 						 {
-							echo $data[0]."<br/>";
+							 $filename = $_FILES['fileToUpload']['tmp_name'];
+							 $handle = fopen($filename, "r");
+							 $numbersString = "";
+							 while (($data = fgetcsv($handle, 1000, ",")) !== FALSE)
+							 {
+								$numbersString = $numbersString.$data[0].',' ;
+							 }
+							 fclose($handle);
+							 $api_fields['dest'] = rtrim($numbersString,",");
 						 }
-						 fclose($handle);
-					 }
-					 //we issue a warning for user trying to upload non-CSV file
-					 else
-					 {
+						 else
+						{
+							echo '<div class="row placeholders">';
+							echo '<div class="notice warning text-left">';
+							echo '<p> Invalid filetype. Please only upload CSV files </p>';
+							echo '</div>';
+							echo '</div>';
+						} 
+					}
+					//TODO: Implement from contacts/tags
+					else {
+
+					}
+					
+					//we send the SMS to the API with the appropriate request parameters in the associative array, $api_fields
+					if(isset($api_fields['dest'])){
+						echo '<p>'.APISendSMS($api_fields).'</p>';
+	
+					}
+					//Error handling for invalid Send To field
+					else {
 						echo '<div class="row placeholders">';
 						echo '<div class="notice warning text-left">';
-						echo '<p> Invalid filetype. Please only upload CSV files </p>';
+						echo '<p> Send To field is invalid. Please try again </p>';
 						echo '</div>';
 						echo '</div>';
-					 } 
+						
+					}
 				}
+
 
 			?>
 			
