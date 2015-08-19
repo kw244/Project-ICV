@@ -9,7 +9,10 @@
 				// include the configs / constants for the API connection
 				require_once("config/api.php");
 			
-				//include format checking function
+				//include the classes for recording outbound messages to database
+				require_once("classes/connection.php");
+			
+				//include format checking function and notification module
 				require_once("classes/formatting.php");
 
 				//Handle sending of SMS from web form
@@ -49,11 +52,7 @@
 						 }
 						 else
 						{
-							echo '<div class="row placeholders">';
-							echo '<div class="notice warning text-left">';
-							echo '<p> Invalid filetype. Please only upload CSV files </p>';
-							echo '</div>';
-							echo '</div>';
+							createNotif("warning","Invalid filetype. Please only upload CSV files");
 						} 
 					}
 					//TODO: Implement from contacts/tags
@@ -63,17 +62,49 @@
 					
 					//we send the SMS to the API with the appropriate request parameters in the associative array, $api_fields
 					if(isset($api_fields['dest'])){
-						echo '<p>'.APISendSMS($api_fields).'</p>';
-	
+						
+						//we collect the msg meta info created by send_sms.js from the hidden fields
+						$is_gsm = (int) $_POST["sms_text_is_gsm"];
+						$num_msg = (int) $_POST["sms_text_num_msg"];
+						
+						
+						//$num_msgs is permitted: we go ahead and call the API to send SMS
+						if($num_msg > 0){
+							$api_result = APISendSMS($api_fields);
+							echo $api_result."<br/>";
+							$json_result = json_decode($api_result, true);
+								
+							//we log the SMS as an outbound message in the database
+							$outbound_data = array(
+											'api_ref_id'=>$json_result['bulk_txn_ref'],
+											'title'=>$_POST['campaign_title'],
+											'from'=>$_POST['send_as_name'],
+											'to'=>$_POST['send_to_numbers'],
+											'text'=>$_POST['sms_text'],
+											'status'=>$json_result['status'],
+											'credits_used'=> $num_msg*countRecipients($_POST['send_to_numbers'])
+										);
+										
+							//open mysql database connection
+							$mysqli = openConnection();
+
+							//enter details of outbound msg into outbound table and deduct appropriate user credits
+							uploadOutboundInfo($mysqli,$outbound_data);
+							subtractUserCredits($mysqli,$outbound_data['credits_used']);
+												
+							// close connection 
+							closeConnection($mysqli);
+							createNotif("success","SMS successfully sent");
+						}
+						//number of msgs restriction(3) exceeded
+						else{
+							createNotif("warning","Maximum number of characters exceeded");
+						}						
+
 					}
 					//Error handling for invalid Send To field
 					else {
-						echo '<div class="row placeholders">';
-						echo '<div class="notice warning text-left">';
-						echo '<p> Send To field is invalid. Please try again </p>';
-						echo '</div>';
-						echo '</div>';
-						
+						createNotif("warning","Send To field is invalid. Please try again");				
 					}
 				}
 
@@ -108,11 +139,12 @@
 				<div class="form-group sms_text_form">	
 					<label>Message </label>	
 					<textarea class="form-control" rows="4" id="sms_text" name="sms_text" placeholder="Enter SMS Text" required="required"></textarea>
-					<p class="text-right" id="sms_text_comment">160/1</p>
+					<p class="text-right" id="sms_text_comment" name="sms_text_comment">GSM: 160/1</p>
+					<input type="hidden" id="sms_text_num_msg" name="sms_text_num_msg">
+					<input type="hidden" id="sms_text_is_gsm" name="sms_text_is_gsm">
 				</div>
 				
 				<input class="custom-btn btn btn-primary" type="submit" value="Send" name="submit_sms">
-			
 			</form>
 		
 		</div>

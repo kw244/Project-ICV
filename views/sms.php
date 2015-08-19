@@ -12,6 +12,7 @@
 			<li><a href="?SMS&menu=send_sms">Send SMS</a></li>
 			<li><a href="?SMS&menu=sms_inbox">Inbox</a></li>
 			<li><a href="?SMS&menu=sms_sent">Sent</a></li>
+			<li><a href="?SMS&menu=sms_keywords">Keywords</a></li>
 		  </ul>
 		</div>
 	</div>

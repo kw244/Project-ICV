@@ -11,6 +11,9 @@
 				// include the configs / constants for the database connection
 				require_once("classes/connection.php");
 
+				//include format checking function and notification module
+				require_once("classes/formatting.php");
+				
 				//open mysql database connection
 				$mysqli = openConnection();
 				
@@ -25,19 +28,11 @@
 				//notification after removal operation
 				if ($successBool){
 					//we notify user of successful deletion
-					echo '<div class="row placeholders">';
-					echo '<div class="notice success text-left">';
-					echo '<p>Selected contacts successfully removed</p>';
-					echo '</div>';
-					echo '</div>';
+					createNotif("success","Selected contacts successfully removed");
 				}
 				else {
 					//we notify user of unsuccessful deletion
-					echo '<div class="row placeholders">';
-					echo '<div class="notice warning text-left">';
-					echo '<p>Removal unsuccessful. Please see error messages</p>';
-					echo '</div>';
-					echo '</div>';
+					createNotif("warning","Removal unsuccessful. Please see error messages");
 				}
 				
 				// close connection 

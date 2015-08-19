@@ -9,6 +9,9 @@
 				// include helper functions for formatting phone number
 				require_once("classes/connection.php");
 				
+				//include format checking function and notification module
+				require_once("classes/formatting.php");
+				
 				//open mysql database connection
 				$mysqli = openConnection();
 				
@@ -19,19 +22,11 @@
 				//upload contact info into contacts and contacts_users tables
 				if (uploadContactsInfo($mysqli,$contactsData)){
 					//we notify user of successful upload of contact
-					echo '<div class="row placeholders">';
-					echo '<div class="notice success text-left">';
-					echo '<p>'.$_POST['contact_name'].' successfully imported </p>';
-					echo '</div>';
-					echo '</div>';
+					createNotif("success",$_POST['contact_name'].' successfully imported');
 				}
 				else {
 					//we notify user of unsuccessful upload
-					echo '<div class="row placeholders">';
-					echo '<div class="notice warning text-left">';
-					echo '<p>Upload unsuccessful. Please see error messages</p>';
-					echo '</div>';
-					echo '</div>';	
+					createNotif("warning","Upload unsuccessful. Please see error messages");
 				}
 
 				
@@ -96,20 +91,13 @@
 						 fclose($handle);
 						
 						if ($successBool){
+							
 							//we notify user of successful upload of CSV file
-							echo '<div class="row placeholders">';
-							echo '<div class="notice success text-left">';
-							echo '<p>'.$fname.' successfully imported </p>';
-							echo '</div>';
-							echo '</div>';
+							createNotif("success",$fname.' successfully imported');
 						}
 						else {
 							//we notify user of unsuccessful upload
-							echo '<div class="row placeholders">';
-							echo '<div class="notice warning text-left">';
-							echo '<p>Upload unsuccessful. Please see error messages</p>';
-							echo '</div>';
-							echo '</div>';	
+							createNotif("warning","Upload unsuccessful. Please see error messages");
 						}
 
 								 
@@ -118,11 +106,7 @@
 					 //we issue a warning for user trying to upload non-CSV file
 					 else
 					 {
-						echo '<div class="row placeholders">';
-						echo '<div class="notice warning text-left">';
-						echo '<p> Invalid filetype. Please only upload CSV files </p>';
-						echo '</div>';
-						echo '</div>';
+						createNotif("warning","Invalid filetype. Please only upload CSV files");
 		
 					 }   
 				}					

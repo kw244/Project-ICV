@@ -8,9 +8,8 @@
 	<script src="js/tablesort.js"></script>
 	<!--for using Bootstrap dropdown buttons as selects for send_sms.php-->
 	<script src="js/send_sms.js"></script>
+	<!--for checking if desired keyword already exists in keyword table-->
+	<script src="js/create_keyword.js"></script>
 
-	
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
   </body>
 </html>
