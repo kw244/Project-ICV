@@ -31,7 +31,20 @@
 					//we setup the recipients of the SMS according to input source
 					//"Enter Number(s)"
 					if (isset($_POST['send_to_numbers'])){
-						$api_fields['dest'] = $_POST['send_to_numbers'];
+						$input_num_array = explode(',',$_POST['send_to_numbers'])
+						$numbersString = "";
+						foreach($input_num_array as $raw_num){
+							$input_num = cleanSGNum($raw_num);
+							
+							//check if phone number is valid
+							if(checkSGNum($input_num)){
+								$numbersString = $numbersString.$input_num.',' ;
+							}
+							else {
+								echo $input_num.' is not a valid SG phone number';
+							}
+						}
+						$api_fields['dest'] =  rtrim($numbersString,",");
 					}
 					//"Upload CSV"
 					elseif (isset($_FILES['fileToUpload'])){
@@ -45,7 +58,15 @@
 							 $numbersString = "";
 							 while (($data = fgetcsv($handle, 1000, ",")) !== FALSE)
 							 {
-								$numbersString = $numbersString.$data[0].',' ;
+								$input_num = cleanSGNum($data[0]);
+								//check if phone number is valid
+								if(checkSGNum($input_num)){
+									$numbersString = $numbersString.$input_num.',' ;
+								}
+								else {
+									echo $input_num.' is not a valid SG phone number';
+								}
+								
 							 }
 							 fclose($handle);
 							 $api_fields['dest'] = rtrim($numbersString,",");

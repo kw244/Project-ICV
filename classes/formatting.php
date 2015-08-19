@@ -2,12 +2,11 @@
 
 	/* 	checks if $raw_number fits the standard SG phone number format 65XXXXYYYY
 		returns true if so, false otherwise */
-	function checkSGPhone($raw_number) {
-		
-		
+	function checkSGNum($raw_number) {
+
 		$length_ok = strlen($raw_number)===10;
 		$cc_ok = substr($raw_number,0,2)==='65';
-		$num_ok = is_numeric(substr($raw_number,2,8)); //TODO: not a perfect check
+		$num_ok = isDigits($raw_number);
 
 		return $length_ok && $cc_ok && $num_ok;
 	}
@@ -16,6 +15,33 @@
 	function removeWhitespace($input){
 		return preg_replace('/\s+/', '', $input);
 	}
+	
+	/*	Takes in a string input and removes non-digit characters from it */
+	function removeNonDigit($input){
+		return preg_replace('/\D+/', '', $input);
+	}
+	
+	/*	Takes in a string $input and checks that it is all digits 0-9 */
+	function isDigits($input){
+		return preg_match('/\d+/',$input);
+	}
+	
+	/*	Takes in a phone number, $inputNum, and converts it to 65XXXXYYYY format  
+		Handles phone numbers in (a) XXXXYYYY  (b) with +65-XXXXYYYY (c) 65-XXXXYYYY (d) 65 XXXXYYYY
+	*/
+	function cleanSGNum($inputNum){
+		//we remove whitespace and non-digits
+		$outputNum = removeWhitespace($inputNum);
+		$outputNum = removeNonDigit($outputNum);
+		
+		//we add the 65 prefix if $outputNum is only 8-digits length
+		if(strlen($outputNum)===8){
+			$outputNum = '65'.$outputNum;
+		}
+		return $outputNum;
+		
+	}
+	
 	
 	/*	Takes in a string input of comma-separated phone numbers and counts it 	*/
 	function countRecipients($recipientsStr){

@@ -406,14 +406,15 @@
 		//include format checking function
 		require_once("classes/formatting.php");
 		
+		$raw_num = $data[1];
+		$processed_num = cleanSGNum($raw_num);
+		
 		//we check if phone number is in correct format and generate warning if not
-		if (!checkSGPhone($data[1])){
-			print $data[1].' has invalid phone format. Ensure it is in 65XXXXXXXX';
+		if (!checkSGNum($processed_num)){
+			print $raw_num.' has invalid phone format. Please use 65XXXXXXXX';
 			return false;
 		}
 
-		//boolean used to track success of upload, returns true if all records uploaded successfully, false otherwise
-		$successBool = true;
 		$user_name = $_SESSION['user_name'];
 	
 		//create the prepared statement
@@ -423,8 +424,8 @@
 		//bind parameters for markers where (s=string, i=integer, d=double, b=blob)
 		//we parse the $data[1], into country code and phone number
 		$contact_name = $data[0];
-		$contact_country_code = substr($data[1],0,2);
-		$contact_number = substr($data[1],2,8);
+		$contact_country_code = substr($processed_num,0,2);
+		$contact_number = substr($processed_num,2,8);
 		$statement->bind_param('sss',$contact_name,$contact_country_code,$contact_number);
 		
 		//execute query and print any errors that occur
