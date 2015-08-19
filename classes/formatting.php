@@ -12,12 +12,26 @@
 		return $length_ok && $cc_ok && $num_ok;
 	}
 	
-	/*	Takes in the form inputs of a String of phone numbers (comma-separated)
-		and returns them in an array 
-	*/
-	function numbersStringToArray($input){
-		//removes whitespace and separates elements by commas
-		return array_map('trim', explode(',', $input));
+	/*	Takes in a string input and removes whitespace from it */
+	function removeWhitespace($input){
+		return preg_replace('/\s+/', '', $input);
 	}
+	
+	/*	Takes in a string input of comma-separated phone numbers and counts it 	*/
+	function countRecipients($recipientsStr){
+		$recipientsArray = explode(",", $recipientsStr);
+		return count($recipientsArray);
+	}
+
+	
+	/*  Generates a notification element displaying $inputStr with notification type of $notifType*/
+	function createNotif($notifType, $inputStr){
+		echo '<div class="row placeholders">';
+		echo '<div class="notice '.$notifType.' text-left">';
+		echo '<p> '.$inputStr.' </p>';
+		echo '</div>';
+		echo '</div>';
+	}
+	
 
 ?>

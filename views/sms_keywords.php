@@ -4,7 +4,7 @@
 		<h4> Create a keyword</h4>
 		<?php
 			//handles the creating of new keyword in database
-			if(isset($_POST['keyword_input'])){
+			if(isset($_POST['submit_keyword']) && isset($_POST['keyword_input'])){
 				// include the configs / constants for the database connection
 				// include helper functions for formatting phone number
 				require_once("classes/connection.php");
@@ -21,7 +21,7 @@
 					
 					//upload keyword into keyword table
 					if(uploadKeyword($mysqli,$_POST['keyword_input'])){
-						createNotif('success','"'.$_POST['keyword_input'].'", successfully created as keyword');
+						createNotif('success','"'.$_POST['keyword_input'].'", created as keyword');
 					}
 					
 					// close connection 
@@ -49,6 +49,80 @@
 			</form>
 		
 		</div>
+	</div>
+	<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main custom-section">
+		<h4> Existing Keywords</h4>
+		<div class="col-sm-6 col-md-6 main bg-light-grey">	
+			<form action="index.php?SMS&menu=sms_keywords" method="post">
+			
+			<div class="table-responsive">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+						  <th>Select</th>
+						  <th>Keyword</th>
+						</tr>
+					</thead>
+					<tbody class="list">
+				
+					<?php
+						
+						// include the configs / constants for the database connection
+						require_once("classes/connection.php");
+						
+						//include format checking function and notification module
+						require_once("classes/formatting.php");
+						
+						//handles the removal of keyword from database
+						if(isset($_POST['remove_keyword'])){
+
+							//open mysql database connection
+							$mysqli = openConnection();
+							
+							//boolean used to track success of deletion, returns true if all records deleted successfully, false otherwise
+							$successBool = true;
+							
+							//we take contact_ids in the array and delete those records from the contacts table
+							foreach ($_POST['checkbox'] as $keyword_id){
+								$successBool = $successBool && removeKeyword($mysqli,$keyword_id);
+							}
+							
+							//notification after removal operation
+							if ($successBool){
+								//we notify user of successful deletion
+								createNotif("success","Selected keywords successfully removed");
+							}
+							else {
+								//we notify user of unsuccessful deletion
+								createNotif("warning","Removal unsuccessful. Please see error messages");
+							}
+							
+							// close connection 
+							closeConnection($mysqli);
+									
+						}
+						
+						
+						//open mysql database connection
+						$mysqli = openConnection();
+
+						//get the list of keywords and print them to html list
+						displayKeywords($mysqli, true);	
+						
+						// close connection 
+						closeConnection($mysqli);
+						
+
+						
+						
+					?>
+					 
+					</tbody>
+				</table>
+			</div>
+			<input class="remove btn btn-primary" type="submit" value="Remove" name="remove_keyword">
+			</form>
+	    </div>
 	</div>
 
 </div>
