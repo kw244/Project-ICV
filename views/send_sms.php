@@ -27,12 +27,13 @@
 								'tag' => $_POST['campaign_title'],
 								'notify_url' => API_CALLBACK_URL
 								);
+					$numbersString = "";
 					
 					//we setup the recipients of the SMS according to input source
 					//"Enter Number(s)"
 					if (isset($_POST['send_to_numbers'])){
-						$input_num_array = explode(',',$_POST['send_to_numbers'])
-						$numbersString = "";
+						$input_num_array = explode(',',$_POST['send_to_numbers']);
+						
 						foreach($input_num_array as $raw_num){
 							$input_num = cleanSGNum($raw_num);
 							
@@ -55,7 +56,7 @@
 						 {
 							 $filename = $_FILES['fileToUpload']['tmp_name'];
 							 $handle = fopen($filename, "r");
-							 $numbersString = "";
+							 
 							 while (($data = fgetcsv($handle, 1000, ",")) !== FALSE)
 							 {
 								$input_num = cleanSGNum($data[0]);
