@@ -22,6 +22,7 @@
                   <th>Username</th>
                   <th>Account Type</th>
                   <th>SMS Credits Available</th>
+				  <th>Keywords Available</th>
                 </tr>
               </thead>
               <tbody>

@@ -18,19 +18,21 @@
 				//Handle sending of SMS from web form
 				if(isset($_POST['submit_sms'])){
 					
-					//we setup the necessary fields for the API call					
+					//we collect the msg meta info created by send_sms.js from the hidden fields
+					$is_gsm = (bool) $_POST["sms_text_is_gsm"];
+					$num_msg = (int) $_POST["sms_text_num_msg"];
 					
-					$api_fields = array(
-								'app_id' => API_ID,
-								'access_token' => API_TOKEN,
-								'msg' => $_POST['sms_text'],
-								'tag' => $_POST['campaign_title'],
-								'notify_url' => API_CALLBACK_URL
+				
+					//we setup the necessary fields for the API call					
+					$api_fields = array(	//recipients to be handled below according to input source
+									'from' => $_POST['send_as_name'],
+									'text' => $_POST['sms_text']
 								);
-					$numbersString = "";
 					
 					//we setup the recipients of the SMS according to input source
 					//"Enter Number(s)"
+					$recipients_array = array();
+					
 					if (isset($_POST['send_to_numbers'])){
 						$input_num_array = explode(',',$_POST['send_to_numbers']);
 						
@@ -39,13 +41,13 @@
 							
 							//check if phone number is valid
 							if(checkSGNum($input_num)){
-								$numbersString = $numbersString.$input_num.',' ;
+								$recipients_array[] = $input_num;
 							}
 							else {
 								echo $input_num.' is not a valid SG phone number';
 							}
 						}
-						$api_fields['dest'] =  rtrim($numbersString,",");
+						$api_fields['to'] =  $recipients_array;
 					}
 					//"Upload CSV"
 					elseif (isset($_FILES['fileToUpload'])){
@@ -62,7 +64,7 @@
 								$input_num = cleanSGNum($data[0]);
 								//check if phone number is valid
 								if(checkSGNum($input_num)){
-									$numbersString = $numbersString.$input_num.',' ;
+									$recipients_array[] = $input_num;
 								}
 								else {
 									echo $input_num.' is not a valid SG phone number';
@@ -70,7 +72,7 @@
 								
 							 }
 							 fclose($handle);
-							 $api_fields['dest'] = rtrim($numbersString,",");
+							 $api_fields['to'] =  $recipients_array;
 						 }
 						 else
 						{
@@ -83,12 +85,7 @@
 					}
 					
 					//we send the SMS to the API with the appropriate request parameters in the associative array, $api_fields
-					if(isset($api_fields['dest'])){
-						
-						//we collect the msg meta info created by send_sms.js from the hidden fields
-						$is_gsm = (int) $_POST["sms_text_is_gsm"];
-						$num_msg = (int) $_POST["sms_text_num_msg"];
-						
+					if(isset($api_fields['to'])){
 						
 						//$num_msgs is permitted: we go ahead and call the API to send SMS
 						if($num_msg > 0){
@@ -98,12 +95,13 @@
 								
 							//we log the SMS as an outbound message in the database
 							$outbound_data = array(
-											'api_ref_id'=>$json_result['bulk_txn_ref'],
+											//use bulkId instead of messageId when sending to multiple recipients
+											'api_ref_id'=>(count($api_fields['to']) > 1 ? $json_result['bulkId'] : $json_result['messages'][0]['messageId']),  
 											'title'=>$_POST['campaign_title'],
 											'from'=>$_POST['send_as_name'],
-											'to'=>$_POST['send_to_numbers'],
+											'to'=>implode(', ',$api_fields['to']) ,	//Convert recipients array
 											'text'=>$_POST['sms_text'],
-											'status'=>$json_result['status'],
+											'status'=>$json_result['messages'][0]['status']['groupName'],  //TODO might need to 
 											'credits_used'=> $num_msg*countRecipients($_POST['send_to_numbers'])
 										);
 										

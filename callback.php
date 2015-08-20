@@ -1,57 +1,45 @@
 <?php
 
-	/*	Listen for any HTTP POST requests -> SMS transaction and delivery notifications, 
+	/*	Listen for any HTTP POST requests -> SMS delivery reports, 
 		do the appropriate request response and log the notifications to a text file
 	*/
-
-	//Handle transaction notifications
-	if(isset($_POST['status'])){
+	$json_array = json_decode(file_get_contents('php://input'),true);
+	$delivery_summary = array();
+	
+	if(isset($json_array['results'])){
 		
-		$result_tn = array('status'=>$_POST['status']);
-		if($_POST['status']==='success_ok'){
-			$result_tn['txn_ref']=$_POST['txn_ref'];
-			$result_tn['dest']=$_POST['dest'];
-			$result_tn['bulk_txn_ref']=$_POST['bulk_txn_ref'];
+		//we prep the file for writing and logging information
+		$myfile = fopen("delivery_log.txt", "a") or die("Unable to open file!");
+		fwrite($myfile, 'bulkId: '.$json_array['results'][0]['bulkId']."\n");
+		fwrite($myfile, "Undelivered Msgs: \n");
+		
+		/*	we loop through each delivery report to:
+			(a) collect the statistics of each bulk send - total SMS, number of delivered
+			(b) log the delivery output */
+		foreach($json_array['results'] as $result){
+			
+			$delivery_summary['total_SMS'] = $delivery_summary['total_SMS'] + $result['smsCount'];
+			//if msg is successfuly delivered			
+			if($result['status']['groupId']===3){
+				$delivery_summary['num_delivered'] = $delivery_summary['num_delivered'] + $result['smsCount'];
+			}
+			//else we take note of affected recipient and error message
+			else {	
+				fwrite($myfile, 'To: '.$result['to']."\n");
+				fwrite($myfile, 'MsgId: '.$result['messageId']."\n");
+				fwrite($myfile, 'Issue: '.$result['status']['groupName'].'/'.$result['error']['groupName']."\n");
+			}
 		}
-		//we log the notifications
-		$myfile = fopen("txn_notif.txt", "a") or die("Unable to open file!");
-		foreach($result_tn as $key=>$value){
-			fwrite($myfile, $key.": ".$value."\n");
-		}
+		
+		fwrite($myfile, 'Total SMS: '.$delivery_summary['total_SMS']."\n");
+		fwrite($myfile, 'Num Delivered: '.$delivery_summary['num_delivered']."\n");
 		fwrite($myfile, "\n\n\n");
 		fclose($myfile);
 		
 		//then send back a HTTP response
 		deliverResponse(true);
 	}
-	//Handle delivery notifications
-	elseif(isset($_POST['sms_status'])){
-		
-		$result_dn = array(
-						'sms_status'=>$_POST['sms_status'],
-						'txn_ref'=>$_POST['txn_ref'],
-						'tag'=>$_POST['tag'],
-						'date'=>$_POST['date'],
-						'dest'=>$_POST['dest'],
-						'split_count'=>$_POST['split_count'],
-						'currency'=>$_POST['currency'],
-						'rate'=>$_POST['rate'],
-						'debit'=>$_POST['debit'],
-					);
-		
-		//we log the notifications
-		$myfile = fopen("delivery_notif.txt", "a") or die("Unable to open file!");
-		foreach($result_dn as $key=>$value){
-			fwrite($myfile, $key.": ".$value."\n");
-		}
-		fwrite($myfile, "\n\n\n");
-		fclose($myfile);
-		
-		//then send back a HTTP response
-		deliverResponse(true);
-	}
-	//Invalid HTTP request
-	else{
+	else {
 		deliverResponse(false);
 	}
 	
