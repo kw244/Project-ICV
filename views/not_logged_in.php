@@ -61,7 +61,7 @@
 
 		</form>
 
-		<a href="register.php">Register new account</a>
+		
 		
 		</div> <!-- /container -->
 	</body>

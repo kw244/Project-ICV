@@ -45,5 +45,16 @@
               </tbody>
             </table>
         </div>
+		<?php
+			//use determine if admin to populate the admin menu
+			if($_SESSION["user_name"]==="kw244"){
+				//allow for registration of new login account
+				echo '<a href="config/register.php">Register new account</a>';
+			
+				//TODO allow for creation of account details - user_name, account_type, sms_credits, keyword_credits
+			
+			}
+		?>
+
     </div>
 </div>

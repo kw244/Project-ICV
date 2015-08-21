@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `login`.`outbound` (
+CREATE TABLE IF NOT EXISTS `cafecham_sparksms`.`outbound` (
   `outbound_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'auto incrementing id for each outbound msg, primary key',
   `outbound_ref_id` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'reference id of the outbound msg with the SMS API, unique key',
   `outbound_title` varchar(128) COLLATE utf8_unicode_ci NOT NULL COMMENT 'aka campaign title',

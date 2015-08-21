@@ -1,0 +1,26 @@
+[21-Aug-2015 07:14:43 UTC] PHP Warning:  require_once(libraries/password_compatibility_library.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 20
+[21-Aug-2015 07:14:43 UTC] PHP Fatal error:  require_once(): Failed opening required 'libraries/password_compatibility_library.php' (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/cafecham/public_html/www.spark-sms.com/index.php on line 20
+[21-Aug-2015 07:18:03 UTC] PHP Warning:  mysqli::mysqli(): (HY000/1045): Access denied for user 'root'@'localhost' (using password: NO) in /home/cafecham/public_html/www.spark-sms.com/classes/Login.php on line 55
+[21-Aug-2015 07:18:03 UTC] PHP Warning:  mysqli::set_charset(): Couldn't fetch mysqli in /home/cafecham/public_html/www.spark-sms.com/classes/Login.php on line 58
+[21-Aug-2015 07:18:03 UTC] PHP Warning:  Login::dologinWithPostData(): Couldn't fetch mysqli in /home/cafecham/public_html/www.spark-sms.com/classes/Login.php on line 59
+[21-Aug-2015 08:36:38 UTC] PHP Warning:  mysqli::mysqli(): (HY000/1045): Access denied for user 'root'@'localhost' (using password: NO) in /home/cafecham/public_html/www.spark-sms.com/classes/Registration.php on line 69
+[21-Aug-2015 08:36:38 UTC] PHP Warning:  mysqli::set_charset(): Couldn't fetch mysqli in /home/cafecham/public_html/www.spark-sms.com/classes/Registration.php on line 72
+[21-Aug-2015 08:36:38 UTC] PHP Warning:  Registration::registerNewUser(): Couldn't fetch mysqli in /home/cafecham/public_html/www.spark-sms.com/classes/Registration.php on line 73
+[21-Aug-2015 09:07:11 UTC] PHP Warning:  include(views/SMS.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:07:11 UTC] PHP Warning:  include(views/SMS.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:07:11 UTC] PHP Warning:  include(): Failed opening 'views/SMS.php' for inclusion (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:07:31 UTC] PHP Warning:  include(views/SMS.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:07:31 UTC] PHP Warning:  include(views/SMS.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:07:31 UTC] PHP Warning:  include(): Failed opening 'views/SMS.php' for inclusion (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:07:46 UTC] PHP Warning:  include(views/SMS.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:07:46 UTC] PHP Warning:  include(views/SMS.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:07:46 UTC] PHP Warning:  include(): Failed opening 'views/SMS.php' for inclusion (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:08:58 UTC] PHP Warning:  include(views/SMS.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:08:58 UTC] PHP Warning:  include(views/SMS.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:08:58 UTC] PHP Warning:  include(): Failed opening 'views/SMS.php' for inclusion (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/cafecham/public_html/www.spark-sms.com/index.php on line 63
+[21-Aug-2015 09:10:01 UTC] PHP Warning:  include(views/sms_inbox.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 67
+[21-Aug-2015 09:10:01 UTC] PHP Warning:  include(views/sms_inbox.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 67
+[21-Aug-2015 09:10:01 UTC] PHP Warning:  include(): Failed opening 'views/sms_inbox.php' for inclusion (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/cafecham/public_html/www.spark-sms.com/index.php on line 67
+[21-Aug-2015 09:10:09 UTC] PHP Warning:  include(views/sms_inbox.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 67
+[21-Aug-2015 09:10:09 UTC] PHP Warning:  include(views/sms_inbox.php): failed to open stream: No such file or directory in /home/cafecham/public_html/www.spark-sms.com/index.php on line 67
+[21-Aug-2015 09:10:09 UTC] PHP Warning:  include(): Failed opening 'views/sms_inbox.php' for inclusion (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/cafecham/public_html/www.spark-sms.com/index.php on line 67

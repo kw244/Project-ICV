@@ -217,6 +217,7 @@
 			}
 		}
 	}
+
 	
 	//returns account information (user_name, account_type,sms_credits) in html table row
 	function getAccountInfo($mysqli){

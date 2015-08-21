@@ -95,8 +95,8 @@
 								
 							//we log the SMS as an outbound message in the database
 							$outbound_data = array(
-											//use bulkId instead of messageId when sending to multiple recipients
-											'api_ref_id'=>(count($api_fields['to']) > 1 ? $json_result['bulkId'] : $json_result['messages'][0]['messageId']),  
+											//a bulkId is generated regardless of # recipients as long as a recipients_array is submitted
+											'api_ref_id'=>$json_result['bulkId'],  
 											'title'=>$_POST['campaign_title'],
 											'from'=>$_POST['send_as_name'],
 											'to'=>implode(', ',$api_fields['to']) ,	//Convert recipients array

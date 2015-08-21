@@ -1,0 +1,7 @@
+bulkId: 1440148584750637423
+Undelivered Msgs: 
+Total SMS: 1
+Num Delivered: 1
+
+
+
