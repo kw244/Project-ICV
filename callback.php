@@ -4,7 +4,8 @@
 		do the appropriate request response and log the notifications to a text file
 	*/
 	$json_array = json_decode(file_get_contents('php://input'),true);
-	$delivery_summary = array();
+	$delivery_summary = array('success'=>true);
+	$log_msg = "";
 	
 	if(isset($json_array['results'])){
 		
@@ -12,7 +13,9 @@
 		$myfile = fopen("delivery_log.txt", "a") or die("Unable to open file!");
 		fwrite($myfile, 'bulkId: '.$json_array['results'][0]['bulkId']."\n");
 		fwrite($myfile, "Undelivered Msgs: \n");
-		
+		$log_msg = $log_msg."bulkId: ".$json_array['results'][0]['bulkId']."\n";
+		$log_msg = $log_msg."Undelivered Msgs: \n";
+
 		/*	we loop through each delivery report to:
 			(a) collect the statistics of each bulk send - total SMS, number of delivered
 			(b) log the delivery output */
@@ -22,12 +25,17 @@
 			//if msg is successfuly delivered			
 			if($result['status']['groupId']===3){
 				$delivery_summary['num_delivered'] = $delivery_summary['num_delivered'] + $result['smsCount'];
+				$delivery_summary['success'] = $delivery_summary['success'] && true;
 			}
 			//else we take note of affected recipient and error message
-			else {	
+			else{	
 				fwrite($myfile, 'To: '.$result['to']."\n");
 				fwrite($myfile, 'MsgId: '.$result['messageId']."\n");
 				fwrite($myfile, 'Issue: '.$result['status']['groupName'].'/'.$result['error']['groupName']."\n");
+				$log_msg = $log_msg."To: ".$result['to']."\n";
+				$log_msg = $log_msg."MsgId: ".$result['messageId']."\n";
+				$log_msg = $log_msg."Issue: ".$result['status']['groupName']."/".$result['error']['groupName']."\n";
+				$delivery_summary['success'] = $delivery_summary['success'] && false;
 			}
 		}
 		
@@ -35,7 +43,21 @@
 		fwrite($myfile, 'Num Delivered: '.$delivery_summary['num_delivered']."\n");
 		fwrite($myfile, "\n\n\n");
 		fclose($myfile);
+		$log_msg = $log_msg."Total SMS: ".$delivery_summary['total_SMS']."\n";
+		$log_msg = $log_msg."Num Delivered: ".$delivery_summary['num_delivered']."\n";
+		$log_msg = $log_msg."\n\n\n";
 		
+		
+		//include the classes for recording outbound messages to database
+		require_once("classes/connection.php");
+		
+		//we setup database connection to update for delivery results
+		$mysqli = openConnection();
+		updateOutboundStatus($mysqli,$json_array['results'][0]['bulkId'],$delivery_summary['success']);
+		updateOutboundLog($mysqli,$json_array['results'][0]['bulkId'],$log_msg);
+		updateOutboundDelivery($mysqli,$json_array['results'][0]['bulkId'],$delivery_summary['num_delivered']);
+		closeConnection($mysqli);
+
 		//then send back a HTTP response
 		deliverResponse(true);
 	}

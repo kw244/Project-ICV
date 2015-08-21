@@ -333,6 +333,73 @@
 		return true;
 	}
 	
+	/* Updates outbound_num_delivered field of $ref_id with the $addition number of SMSes delivered  */
+	function updateOutboundDelivery($mysqli, $ref_id, $addition){
+	
+		//create the prepared statement
+		$query = "UPDATE outbound SET outbound_num_delivered = outbound_num_delivered + ? WHERE outbound_ref_id=?";
+		$statement = $mysqli->prepare($query);
+		
+		//bind parameters for markers where (s=string, i=integer, d=double, b=blob)
+		$statement->bind_param('ss',$addition,$ref_id);
+		
+		//execute query and print any errors that occur
+		if(!$statement->execute()){
+			print 'Failed to update outbound table with num_delivered: '.$ref_id;
+			return false;
+		}
+		return true;
+		
+	}
+	
+	/* Updates outbound_log field of $ref_id with log messages from callback url  */
+	function updateOutboundLog($mysqli, $ref_id, $log_msg){
+		//create the prepared statement
+		$query = "UPDATE outbound SET outbound_log = CONCAT(ifnull(outbound_log,''), ?) WHERE outbound_ref_id=?";
+		$statement = $mysqli->prepare($query);
+		
+		//bind parameters for markers where (s=string, i=integer, d=double, b=blob)
+		$statement->bind_param('ss',$log_msg,$ref_id);
+		
+		//execute query and print any errors that occur
+		if(!$statement->execute()){
+			print 'Failed to update outbound table with delivery log. Ref ID: '.$ref_id;
+			return false;
+		}
+		return true;
+		
+		
+	}
+	
+	/* Updates outbound_status field of $ref_id with status updates, $is_success, from callback url  */
+	function updateOutboundStatus($mysqli, $ref_id, $is_success){
+	
+		$new_status = "";
+		//prepare the new outbound status message
+		if($is_success){
+			$new_status = "SUCCESS";
+		}
+		else{
+			$new_status = "ERRORS, SEE LOG";
+		}
+		
+		//create the prepared statement
+		$query = "UPDATE outbound SET outbound_status = ? WHERE outbound_ref_id=?";
+		$statement = $mysqli->prepare($query);
+		
+		//bind parameters for markers where (s=string, i=integer, d=double, b=blob)
+		$statement->bind_param('ss',$new_status,$ref_id);
+		
+		//execute query and print any errors that occur
+		if(!$statement->execute()){
+			print 'Failed to update outbound table with status: '.$new_status.'. Ref ID: '.$ref_id;
+			return false;
+		}
+		return true;
+		
+	}
+	
+	
 	
 	/*	Takes in an associative array, $data, and inserts its contents into the outbound database
 		Also populates the outbound_users database

@@ -103,6 +103,7 @@
 											'text'=>$_POST['sms_text'],
 											'status'=>$json_result['messages'][0]['status']['groupName'],  //TODO might need to 
 											'credits_used'=> $num_msg*countRecipients($_POST['send_to_numbers'])
+		
 										);
 										
 							//open mysql database connection
