@@ -26,6 +26,15 @@
 		return preg_match('/\d+/',$input);
 	}
 	
+	/* Takes in a string $input and checks if it contains $keyword (case-insensitive) */
+	function containsKeyword($input, $keyword){
+		//we convert everything to lowercase 
+		$input = strtolower($input);
+		$keyword = strtolower($keyword);
+		//keyword match if it is separated by word boundaries and is preceded and followed by any number of chars
+		return preg_match('/.*\b'.$keyword.'\b.*/s',$input);
+	}
+	
 	/*	Takes in a phone number, $inputNum, and converts it to 65XXXXYYYY format  
 		Handles phone numbers in (a) XXXXYYYY  (b) with +65-XXXXYYYY (c) 65-XXXXYYYY (d) 65 XXXXYYYY
 	*/

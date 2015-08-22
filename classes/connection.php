@@ -24,6 +24,57 @@
 		$mysqli->close();
 	}
 	
+	//returns inbound msg information (inbound_from, inbound_text) in html table row
+	//if $checkbox===true, we include a checkbox in each table row for subsequent record deletion
+	function getInboundInfo($mysqli,$checkbox){
+		$user_name = $_SESSION['user_name'];
+		
+		//create the prepared statement
+		/**	We use a subselect where we (a) get the inbound ids associated with the user
+			and then (b) get their corresponding inbound_from and inbound_text from inbound table
+		**/
+		$query = "SELECT inbound_id, inbound_from, inbound_text, inbound_created FROM inbound WHERE inbound_id IN 
+				(SELECT inbound_id FROM inbound_users WHERE user_name=?)";
+		$statement = $mysqli->prepare($query);
+		
+		
+		//bind parameters for markers where (s=string, i=integer, d=double, b=blob)
+		$statement->bind_param('s',$user_name);
+		
+		//execute query
+		$statement->execute();
+		
+		//bind result variables
+		$statement->bind_result($inbound_id, $inbound_from,$inbound_text,$inbound_created);
+		
+
+		//get contacts info in html table row with checkbox for delete_contacts
+		if ($checkbox){
+			while($statement->fetch()) {
+				print '<tr>';
+				print '<td><input type="checkbox" name="checkbox[]" value='.$inbound_id.' id="checkbox"></td>';
+				print '<td>'.$inbound_created.'</td>';
+				print '<td class="name">'.$inbound_from.'</td>';
+				print '<td>'.$inbound_text.'</td>';
+				print '<td>Actions go here</td>';
+				print '</tr>';
+			}
+		}
+		//get contacts info in html table row with checkbox for display_contacts
+		else {
+			while($statement->fetch()) {
+				print '<tr>';
+				print '<td>'.$inbound_created.'</td>';
+				print '<td class="name">'.$inbound_from.'</td>';
+				print '<td>'.$inbound_text.'</td>';
+				print '<td>Actions go here</td>';
+				print '</tr>';
+			}  
+		}
+		
+	}
+	
+	
 	//returns contact information (contact_name, contact_number) in html table row
 	//if $checkbox===true, we include a checkbox in each table row for subsequent record deletion
 	function getContactInfo($mysqli,$checkbox){
@@ -166,15 +217,15 @@
 	}
 	
 	
-	//returns list of all keywords in an array
+	//returns assoc array of all keywords in an array with associated user_name
 	//no external parameters needed so we don't use prepared statement
 	function getAllKeywordArray($mysqli){
-		$query = "SELECT keyword_name FROM keywords";
+		$query = "SELECT keyword_name, user_name FROM keywords";
 		$results = $mysqli->query($query);
 		$output_array = array();
 		
 		while($row = $results->fetch_assoc()){
-			$output_array[] = $row["keyword_name"];
+			$output_array[$row["keyword_name"]] = $row["user_name"];
 		}
 
 		return $output_array;
@@ -397,6 +448,43 @@
 		}
 		return true;
 		
+	}
+	/*	we insert the $sender and $msg into the inbound table
+		Also populates the inbound_users database
+		Returns true if completed successfully, false otherwise */
+	function uploadInboundInfo($mysqli,$sender,$msg,$user){
+		//create the prepared statement
+		$query = "INSERT INTO inbound (inbound_from, inbound_text) VALUES (?,?)";
+		$statement = $mysqli->prepare($query);
+		
+		//bind parameters for markers where (s=string, i=integer, d=double, b=blob)
+		$statement->bind_param('ss',$sender,$msg);
+		
+		//execute query and print any errors that occur
+		if(!$statement->execute()){
+			print 'Failed to insert (inbound table): '.$sender.' / '.$msg;
+			return false;
+		}
+		//inbound info has been successfully inserted into inbound table
+		//we now insert its corresponding (inbound,user) mapping into inbound_users table
+		else {
+			//We get the last inserted inbound_id
+			$query2 = "SELECT MAX(inbound_id) AS inbound_id FROM inbound";
+			$inbound_id = $mysqli->query($query2)->fetch_object()->inbound_id;
+			
+			//and insert it into outbound_users with the user_name
+			$query3 = "INSERT INTO inbound_users (inbound_id,user_name) VALUES (?,?)";
+			$statement3 = $mysqli->prepare($query3);
+			$statement3->bind_param('ss',$inbound_id, $user);
+			
+			//execute query and print any errors that occur
+			if(!$statement3->execute()){
+				print 'Failed to insert (inbound_users table). inbound_id: '. $inbound_id . ' & user_name: ' . $user;
+				return false;
+			}
+			return true;
+			
+		}
 	}
 	
 	
