@@ -2,15 +2,15 @@
 
 	/*	Listen for any HTTP GET requests -> Incoming SMSes, 
 		do the appropriate request response and log the notifications to a text file
+		URL Format: http://www.spark-sms.com/letterbox.php?who=%sender%&what=%text%
 	*/
-	$json_array = json_decode(file_get_contents('php://input'),true);
 	
-	if(isset($json_array['who'])){
-		
+	if(isset($_GET['who'])){
+
 		//we prep the file for writing and logging information
 		$myfile = fopen("letterbox_log.txt", "a") or die("Unable to open file!");
-		fwrite($myfile, 'Sender: '.$json_array['who']."\n");
-		fwrite($myfile, 'Text: '.$json_array['what']."\n");
+		fwrite($myfile, 'Sender: '.$_GET['who']."\n");
+		fwrite($myfile, 'Text: '.$_GET['what']."\n");
 		fwrite($myfile, "\n\n\n");
 		fclose($myfile);
 		
