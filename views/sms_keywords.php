@@ -16,17 +16,23 @@
 				//and upload it to keyword table if it is
 				$regex = "/^[a-zA-Z0-9_]+$/";
 				if(preg_match($regex,$_POST['keyword_input'])){
-					//open mysql database connection
-					$mysqli = openConnection();
 					
-					//upload keyword into keyword table
-					if(uploadKeyword($mysqli,$_POST['keyword_input'])){
-						createNotif('success','"'.$_POST['keyword_input'].'", created as keyword');
+					$num_msg = (int) $_POST["sms_text_num_msg"];
+					if($num_msg > 0){
+						//open mysql database connection
+						$mysqli = openConnection();
+						
+						//upload keyword into keyword table
+						if(uploadKeyword($mysqli, $_POST['keyword_input'], $_POST['sms_text'], $num_msg)){
+							createNotif('success','"'.$_POST['keyword_input'].'", created as keyword');
+						}
+						
+						// close connection 
+						closeConnection($mysqli);
 					}
-					
-					// close connection 
-					closeConnection($mysqli);
-					
+					else {
+						createNotif("warning","Maximum number of characters exceeded");
+					}
 				}
 				else {
 					createNotif('warning','"'.$_POST['keyword_input'].'" isn\'t an accepted keyword format');
@@ -43,8 +49,16 @@
 					<input type="text" class="form-control" placeholder="Enter keyword" id="keyword_input" name="keyword_input" required="required" />
 					<p class="text-right" id="keyword_text_comment" name="keyword_text_comment"></p>
 				</div>
-				
-
+				<div class="form-group autoreply-group">
+					<div class="form-group sms_text_form">	
+						<label>Auto-Reply (Leave blank if you don't want to setup) </label>	
+						<textarea class="form-control" rows="4" id="sms_text" name="sms_text" placeholder="Enter Auto-Reply Text" required="required"></textarea>
+						<p class="text-right" id="sms_text_comment" name="sms_text_comment">GSM: 160/1</p>
+						<input type="hidden" id="sms_text_num_msg" name="sms_text_num_msg">
+						<input type="hidden" id="sms_text_is_gsm" name="sms_text_is_gsm">
+					</div>
+					
+				</div>
 				<input class="custom-btn btn btn-primary" type="submit" value="Create" name="submit_keyword">
 			</form>
 		

@@ -231,6 +231,33 @@
 		return $output_array;
 	}
 	
+	//returns the autoreply text and num_msgs used for the $keyword in an array
+	//returns null if it has not been setup
+	function getAutoReply($mysqli, $keyword){
+		//create the prepared statement
+		$query = "SELECT keyword_response,keyword_msgs_used FROM keywords WHERE keyword_name=?";
+		$statement = $mysqli->prepare($query);
+		
+		//bind parameters for markers where (s=string, i=integer, d=double, b=blob)
+		$statement->bind_param('s',$keyword);
+		
+		//execute query
+		$statement->execute();
+		
+		//bind result variables
+		$statement->bind_result($autoreply, $num_msg);
+		
+		$output = array();
+		while($statement->fetch()) {
+
+			$output['text'] = $autoreply;
+			$output['num_msg'] = $num_msg;
+		}
+	
+		return $output;
+	}
+	
+	
 	//returns the keywords associated with the user in html list item
 	//if $checkbox===true, we include a checkbox in each row for subsequent record deletion
 	
@@ -531,17 +558,30 @@
 		
 	}
 	
-	/* 	Takes in a keyword, $keyword, and inserts it into the keywords table */
-	function uploadKeyword($mysqli,$keyword){
+	/* 	Takes in a $keyword with any $autoreply, and inserts it into the keywords table */
+	function uploadKeyword($mysqli, $keyword, $autoreply, $num_msg){
+
 		$user_name = $_SESSION['user_name'];
-		
+		//check if user wants to setup autoreply for this keyword
+		//and create the appropriate prepared statement
+		if($autoreply===""){
+			$query = "INSERT INTO keywords (keyword_name, user_name) VALUES (?,?)";
+		}
+		else {
+			$query = "INSERT INTO keywords (keyword_name, user_name, keyword_response, keyword_msgs_used) VALUES (?,?,?,?)";
+		}
+
 		//create the prepared statement
-		$query = "INSERT INTO keywords (keyword_name, user_name) VALUES (?,?)";
 		$statement = $mysqli->prepare($query);
 		
 		//bind parameters for markers where (s=string, i=integer, d=double, b=blob)
-		$statement->bind_param('ss',$keyword,$user_name);
-		
+		if($autoreply===""){
+			$statement->bind_param('ss',$keyword,$user_name);
+		}
+		else {
+			$statement->bind_param('ssss',$keyword,$user_name,$autoreply,$num_msg);
+		}
+
 		//execute query and print any errors that occur
 		if(!$statement->execute()){
 			print 'Failed to insert (keywords table): '.$keyword;
